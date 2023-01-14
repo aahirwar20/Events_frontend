@@ -1,7 +1,13 @@
 # OSX
 #
 .DS_Store
+# ignore ALL files in ANY directory named temp
+#
+android/
 
+# ignore ALL files in ANY directory named temp
+#
+ios/
 # Xcode
 #
 build/

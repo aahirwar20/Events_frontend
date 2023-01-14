@@ -60,3 +60,9 @@ buck-out/
 .expo/
 web-build/
 dist/
+
+# ios
+/ios/
+
+# Anroid
+/android/

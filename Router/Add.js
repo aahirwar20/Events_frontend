@@ -1,89 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import{ Button ,Platform,TextInput,Text,View,StyleSheet} from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import{Input} from "@rneui/themed"
-import ItemData from "./Item.js";
+//import ItemData from "./Item.js";
+import axios from 'axios';
+const baseUrl = 'http://172.23.14.32:5000';
 
-var Item ={
-    event:{
-    Id:ItemData.name.length+1,
-    name:"",
-    topic:"",
-    time:"",
-    date:"",
-    venue:"",
-    about:"",}
-}
-let handlename=(name)=>{
-    //    setevent({event:{name:name}})
-    
-    Item.event.name=name;
-       
-    }
-let handletopic=(topic)=>{
-        Item.event.topic=topic;
-    }
-let handletime=(time)=>{
-        Item.event.time=time;
-   }
- let handlevenue=(venue)=>{
-    Item.event.venue=venue;
-    }
-let handledate=(date)=>{
-        Item.event.date=date;
-        }   
 
-let  handledetail=(detail)=>{
-        Item.event.about=detail;
-        }
-
-        const storeData = async (value) => {
-            try {
-              const jsonValue = JSON.stringify(value)
-              await AsyncStorage.setItem('Itemdata', jsonValue)
-            } catch (e) {
-              // saving error
-            }
-          }
-        
-         const getData = async () => {
-           
-           const jsonValue = await AsyncStorage.getItem('Itemdata')
-              console.log(jsonValue); 
-              return jsonValue != null ? JSON.parse(jsonValue) : null;
-           
-          }
-     async function read(){
-        let a= await getData();
-        return a;
-     }             
-let reset_text=()=>{
-    //  Item.event.name="";
-    //  Item.event.topic="";
-    //  Item.event.time="";
-    //  Item.event.venue="";
-    //  Item.event.about="";
-    getData();
-   // console.log(read());
-    
- } 
 
  
-//  async function next_step(){
-//     console.log(Item.event);
-//     console.log("Hello");
-//     // var No_of_event=ItemData.length;
-//     ItemData.name.push(Item.event);
-  
-//  }
-let handleSubmit=()=>{
-           storeData(Item.event).then(reset_text);
-
-     }   
-
-
  function Add() {
+    var Item1 ={
+        id:1,
+        name:"",
+        topic:"",
+        time:"",
+        date:"",
+        venue:"",
+        detail:"",
+    }
+     const [Item,useItem]=useState(Item1);
     
+     let handlechange=(name,value)=>{
+       // const {name} = event.target.dataset
+       useItem((predata)=>({...predata, [name]:value}))}
+
+
+    let handleSubmit=(event)=>{
+     event.preventDefault();
+     //console.log(Item)
+     axios.post(`${baseUrl}/api/event`, Item).then((response) => {
+        console.log(response.data);
+      });;
+     }
     //  var [event,setevent]=React.useState(Item);
    
 
@@ -95,36 +44,42 @@ return(
     
 
         <Input style={style.NameInput}
+        data-name="name"
         placeholder="Name"
         placeholderTextColor = "#9a73ef"
-        onChangeText={handlename}/>
+        onChangeText={(val)=>handlechange("name",val)}/>
 
          <Input style={style.NameInput}
+        name="topic" 
         placeholder="Topic"
         placeholderTextColor = "#9a73ef"
-        onChangeText={handletopic}/>
+        onChangeText={(val)=>handlechange("topic",val)}/>
 
         <Input style={style.NameInput}
+        name="venue"
         placeholder="Vanue"
         placeholderTextColor = "#9a73ef"
-        onChangeText={handlevenue}/>
+        onChangeText={(val)=>handlechange("venue",val)}/>
 
        <Input style={style.NameInput}
+        name="time"
         placeholder="Time"
         placeholderTextColor = "#9a73ef"
-        onChangeText={handletime}/>
+        onChangeText={(val)=>handlechange("time",val)}/>
        
        <Input style={style.NameInput}
+        name="date"
         placeholder="Date"
         placeholderTextColor = "#9a73ef"
-        onChangeText={handledate}/>
+        onChangeText={(val)=>handlechange("date",val)}/>
 
         <Input style={style.LargeNameInput}
+        name="detail"
         placeholder="Detail"
         numberOfLines={10}
         multiline={true}
         placeholderTextColor = "#9a73ef"
-        onChangeText={handledetail}/>
+        onChangeText={(val)=>handlechange("detail",val)}/>
 
          <Button title="Create Event"
          onPress={handleSubmit}/>

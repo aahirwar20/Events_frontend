@@ -1,12 +1,11 @@
-import React,{useState} from "react";
-import { Image,StyleSheet,ScrollView,Text,View } from "react-native";
+import React,{useEffect, useState} from "react";
+import { ActivityIndicator,FlatList,RefreshControl,Image,StyleSheet,ScrollView,Text,View,SafeAreaView } from "react-native";
 import img from "../Public/img.js";
-import ItemData from "./Item.js";
+// import ItemData from "./Item.js";
+import axios from 'axios';
+const baseUrl = 'http://172.23.9.43:5000';
 
-
- //state=ItemData
-// [Data,setData]=useState(this.ItemData);
-
+ 
 const styles2 =StyleSheet.create({
    
     event:{
@@ -21,44 +20,87 @@ const styles2 =StyleSheet.create({
         alignItems:'center',
     }
     })
-
-class ItemData_class extends React.Component{
-    data= (item,index)=>{
-        // var t='../Public/img/img1.jpg';
-        // console.log('../Public/img/img'+item.id+'.jpg');
-        return(
-         <View style={styles2.event} id={index}>
-         <Text>{item.id}: Hello {item.name}</Text>
-         <View>
-         <Image source={img[item.id-1]} style={{width:200,height:100}}/>
-             <Text>{item.topic}</Text>
-            
-             <Text>Time:{item.time}| Date:{item.date} </Text>
-             <Text>Venue: {item.venue}</Text>
-             <Text>About:{item.venue}</Text>
-         </View>
-         </View>
-        );
-     }
-
-}
-var ItemData_obj= new ItemData_class;
-  var ItemShow=ItemData.name.map(ItemData_obj.data)
- 
-class Home extends React.Component{
    
+
+  
+
+
+
+
+ Home=()=>{
+    const [refreshing, setRefreshing] = useState(true);
+    const [ItemData,setItemData]=useState([])
+    useEffect(()=>{
+        setRefreshing(true);
+       LoadItem();
+    },[])
     
+    const LoadItem=()=>{
+        axios.get(`${baseUrl}/api/event`).then(
+            (Response)=>{
+                // console.log(Response.data)
+                setItemData((old)=>{return Response.data})
+                setRefreshing(false);
+            })
+    }
+    const ItemView=(t)=>{
+        let item=t.item
+        console.log(item)
+      return(
         
-     Home(){
-        return(
-            <View style={styles.container}>
-                <ScrollView>
-                <View>{ItemShow}</View>
-                <Text>Nice to meet you</Text>
-                </ScrollView>
-            </View>
-        )}
+        <View style={styles2.event} key={t.index}>
+                     <Text>{item.S_no}: Hello {item.name}</Text>
+                     <View>{item.FormData._parts[0][1].uri&&
+                     <Image source={{uri:item.FormData._parts[0][1].uri}} style={{width:200,height:100}}/>}
+                         <Text>{item.topic}</Text>
+                        
+                         <Text>Time:{item.time}| Date:{item.date} </Text>
+                         <Text>Venue: {item.venue}</Text>
+                         <Text>About:{item.venue}</Text>
+                     </View>
+                     </View>
+      )
+    }
     
+    const ItemSeparatorView = () => {
+        return (
+          <View
+            style={{
+              height: 1,
+              width: '100%',
+              backgroundColor: '#C8C8C8',
+            }}
+          />
+        );
+      };
+
+       return(
+        <SafeAreaView style={{ flex: 1, marginTop: 20 }}>
+            <View style={styles.container}>
+             
+               <View>
+               {refreshing ? <ActivityIndicator /> : null}
+           <FlatList
+                data={ItemData}
+               keyExtractor={(item, index) => index.toString()}
+               ItemSeparatorComponent={ItemSeparatorView}
+                 enableEmptySections={true}
+                 renderItem={ItemView}
+                  refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={LoadItem} />
+               }
+             />
+             
+             </View>
+
+             
+               <Text>Nice to meet you</Text>
+               
+               </View>
+               </SafeAreaView>
+
+       )
+   
 }
 const styles =StyleSheet.create({
 container:{
@@ -68,5 +110,5 @@ container:{
     padding:5,
 }
 })
-let r=new Home; 
-export default r.Home
+// let r=new Home; 
+export default Home
